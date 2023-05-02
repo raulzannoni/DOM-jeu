@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE-edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="style.css">
+            <title>Document</title>
+        </head>
+        <body>
+            <div id="board"></div>
+
+            <script>
+
+                //fonctionee pour randomiser des elements
+                function shuffleChildren(parent)
+                    {
+                        //------------------------------
+                        //
+                        //  Algorithme de Fisher-Yates
+                        //
+                        //------------------------------
+                        let children = parent.children
+                        
+                        //variables de l'algorithme
+                        let i = children.length, k , temp
+                        
+                        //boucle tant que 1 oté de i est toujours positif
+                        while (--i > 0)
+                            {
+                                //k stocke un nombre aléatoire basé sur i
+                                k = Math.floor(Math.random()*(i+1))
+                                //temp pointe temporainement l'élément à la position k dans board
+                                temp = children[k] 
+                                //remplace l'élément à la position k par l'élément à la position i
+                                children[k] = children[i]
+                                //place l'élément k pointé temporainement à la fin du contenu de board
+                                parent.appendChild(temp)
+                            }
+                    }
+
+                //fonctionne pour provoquer une réaction visuelle sur cette même boite. Les réactions sont les suivantes
+                //deux arguments= type: (chaine des caracteres correspondant) au type de reaction souhaité
+                //clickedBox (HTMLElement) etant la boite sur laquelle l'effet sera appliqué
+                function showReaction(type, clickedBox){
+                    
+                    clickedBox.classList.add(type)
+                    if(type !== "success")
+                        {
+                            //permet de retarder l'execution d'une ou plusiers instructions (premiere parametre) du delai voulu (second parametre en ms)
+                            setTimeout(function(){
+                                clickedBox.classList.remove(type)
+                            }, 800)
+                        }
+                }
+
+                /*
+                //debut pour démarrer le jeu et demander à le jouer combien des boites il vaut afficher
+                function demarreJeu()
+                    {
+                        let boites = prompt("Inserez les numeros des boites pour jouer", "")
+                        while (typeof(boites) !== 'number')
+                            {
+                                let boites = prompt("Inserez les numeros des boites pour jouer", "")
+                            }
+                        return boites;
+                    }
+                */
+
+
+
+
+                //methode pour instancier un nouvel objet HTMLelement qvec balise "div" 
+                //element stocké dans une constante pour garantir l'integrité de l'element
+                const box = document.createElement("div") 
+
+                //modification de sa propriété classList pour lui ajouter la classe .box
+                //qvec le methode .add() de classList
+                box.classList.add("box")
+
+                //methode pour afficher l'element instancié sur la page (div#board)
+                const board = document.querySelector("#board")
+
+                let nb = 1
+                
+                //number = demarreJeu()
+
+                //boucle pour créer dix differents boites numerotées
+                for(let i = 1; i <= 10; i++)
+                    {
+                        //methode pour créer une copie de l'element box de la boite chaque fois
+                        let newbox = box.cloneNode()
+                        //methode pour ajouter à l'interieur de l'élément un noeud de texte
+                        newbox.innerText = i
+                        //méthode qui place un élément du DOM à la fin du contenu de l'élément visé
+                        board.appendChild(newbox)
+
+                        //methode pour ajouter un evenement à tout élément du DOM
+                        newbox.addEventListener("click", function(){
+
+                            if(i == nb)
+                                {
+                                    console.log("Boite n°" + i +", click !")
+                                    //modification visuelle après le clique
+                                    newbox.classList.add("box-valid")
+                                    // Si nb est egal au nombre de boites du jeu, c'est que le dernier clic etait sur la derniere boite -> VICTOIRE
+                                    if(nb == board.children.length)
+                                        {
+                                            board.querySelectorAll(".box").forEach(function(box){
+                                                showReaction("success", box)
+                                            })
+                                        }
+                                    nb++
+                                }
+                            
+                            //Si le numero de la boite est superieur à nb, c'est que le joueur  a cliqué une boite trop élevée -> GAME OVER
+                            else if (i > nb)
+                                {
+                                    showReaction("error", newbox)
+                                    nb = 1
+                                    // lorsque le jeu doit redémarrer de sélectionner les boites grisées en passant par l'élément board
+                                    // La méthode querySelectorAll() récupère un tableau d'éléments, sur lequel nous utilisons la méthode forEach() permettant de passer sur chaque élément, élément qui sera représenté ici par l'argument "validBox"
+                                    board.querySelectorAll(".box-valid").forEach(function(validBox){
+                                        validBox.classList.remove("box-valid")
+                                    })
+                                }
+                            
+                            //Derniere possibilité, le joueur a cliqué sur une boite deja grisée. On l'informe simplement de cela, le jeu ne redémarre pas
+                            else
+                                {
+                                    showReaction("notice", newbox)
+                                }
+                        })
+                    }
+                
+                //appel de la fonctionne pour randomiser les boites
+                shuffleChildren(board)
+
+            </script>
+        </body>
+    </html> 
